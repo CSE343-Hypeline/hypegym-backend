@@ -2,24 +2,26 @@ package auth
 
 import (
 	"errors"
+	"hypegym-backend/models/enums"
+	"os"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 )
 
-var jwtKey = []byte("supersecretkey")
+var jwtKey = []byte(os.Getenv("JWT_SECRET"))
 
 type JWTClaim struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
+	Email string     `json:"email"`
+	Role  enums.Role `json:"roles"`
 	jwt.StandardClaims
 }
 
-func GenerateJWT(email string, username string) (tokenString string, err error) {
-	expirationTime := time.Now().Add(1 * time.Hour)
+func GenerateJWT(email string, role enums.Role) (tokenString string, err error) {
+	expirationTime := time.Now().Add(24 * time.Hour)
 	claims := &JWTClaim{
-		Email:    email,
-		Username: username,
+		Email: email,
+		Role:  role,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},
@@ -29,7 +31,7 @@ func GenerateJWT(email string, username string) (tokenString string, err error) 
 	return
 }
 
-func ValidateToken(signedToken string) (err error) {
+func ValidateToken(signedToken string) (err error, role enums.Role) {
 	token, err := jwt.ParseWithClaims(
 		signedToken,
 		&JWTClaim{},
@@ -52,5 +54,7 @@ func ValidateToken(signedToken string) (err error) {
 		err = errors.New("token expired")
 		return
 	}
+
+	role = claims.Role
 	return
 }

@@ -2,31 +2,34 @@ package main
 
 import (
 	"hypegym-backend/controllers"
-	"hypegym-backend/database"
+	"hypegym-backend/initializers"
 	"hypegym-backend/middlewares"
+	"hypegym-backend/models/enums"
 
 	"github.com/gin-gonic/gin"
 )
 
-func main() {
-	database.Connect("root:@tcp(localhost:3306)/jwt_demo?parseTime=true")
-	database.Migrate()
+func init() {
+	initializers.LoadEnvVariables()
+	initializers.ConnectToDB()
+	initializers.MigrateDB()
+}
 
+func main() {
 	router := initRouter()
-	router.Run(":8080")
+	router.Run()
 }
 
 func initRouter() *gin.Engine {
 	router := gin.Default()
-	api := router.Group("/api")
+	router.GET("/", controllers.Home)
+	router.POST("/login", controllers.UserLogin)
+
+	api := router.Group("/api").Use(middlewares.Auth())
 	{
-		api.GET("/", controllers.Home)
-		api.POST("/login", controllers.GenerateToken)
-		api.POST("/user/register", controllers.RegisterUser)
-		secured := api.Group("/secured").Use(middlewares.Auth())
-		{
-			secured.GET("/ping", controllers.Ping)
-		}
+		api.GET("/ping", controllers.Ping)
+		api.POST("/user", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}), controllers.UserCreate)
+		api.POST("/gym", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}), controllers.GymCreate)
 	}
 	return router
 }

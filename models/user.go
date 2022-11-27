@@ -1,18 +1,19 @@
 package models
 
 import (
+	"hypegym-backend/models/enums"
+
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
 type User struct {
 	gorm.Model
-	Name     string `json:"name"`
-	Username string `json:"username" gorm:"unique"`
-	Email    string `json:"email" gorm:"unique"`
-	Password string `json:"password"`
+	Email    string     `json:"email" gorm:"unique"`
+	Password string     `json:"password"`
+	Role     enums.Role `json:"role" gorm:"type:enum('SUPERADMIN', 'ADMIN', 'PT', 'MEMBER')"`
+	GymID    uint       `json:"gym_id"`
 }
-
 
 func (user *User) HashPassword(password string) error {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
