@@ -14,13 +14,13 @@ func Auth() gin.HandlerFunc {
 			context.Abort()
 			return
 		}
-		validateErr, role := auth.ValidateToken(tokenString)
+		validateErr, claims := auth.ValidateToken(tokenString)
 		if validateErr != nil {
 			context.JSON(401, gin.H{"error": validateErr.Error()})
 			context.Abort()
 			return
 		}
-		context.Set("role", role)
+		context.Set("jwt", claims)
 		context.Next()
 	}
 }

@@ -4,14 +4,24 @@ import (
 	"hypegym-backend/auth"
 	"hypegym-backend/initializers"
 	"hypegym-backend/models"
+	"hypegym-backend/models/enums"
 	"net/http"
+	"strings"
 
+	"github.com/dranikpg/dto-mapper"
 	"github.com/gin-gonic/gin"
 )
 
 type UserLoginDto struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type UserResponseDto struct {
+	ID    uint   `json:"ID"`
+	Email string `json:"email"`
+	Role  string `json:"role"`
+	GymID uint   `json:"gym_id"`
 }
 
 func UserCreate(context *gin.Context) {
@@ -35,7 +45,65 @@ func UserCreate(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusCreated, gin.H{})
+	context.JSON(http.StatusCreated, gin.H{
+		"message": user.Role + " created",
+	})
+}
+
+func UserGet(context *gin.Context) {
+	id := context.Param("id")
+	response := UserResponseDto{}
+	var user models.User
+	if result := initializers.DB.First(&user, id); result.Error != nil {
+		context.AbortWithError(http.StatusNotFound, result.Error)
+		return
+	}
+	dto.Map(&response, user)
+	context.JSON(http.StatusOK, &response)
+}
+
+func UserGetAll(context *gin.Context) {
+	gymID := context.Param("gymID")
+	var response []UserResponseDto = nil
+	var users []models.User
+	if result := initializers.DB.Find(&users, "gym_id = ?", gymID); result.Error != nil {
+		context.AbortWithError(http.StatusNotFound, result.Error)
+		return
+	}
+	dto.Map(&response, users)
+	context.JSON(http.StatusOK, &response)
+}
+
+func UserGetAllByRole(context *gin.Context) {
+	gymID := context.Param("gymID")
+	path := context.Request.URL.String()
+	var response []UserResponseDto = nil
+	var users []models.User
+	var role enums.Role
+	if strings.Contains(path, "members") {
+		role = enums.MEMBER
+	} else if strings.Contains(path, "pts") {
+		role = enums.PT
+	}
+	if result := initializers.DB.Where("role = ?", role).Find(&users, "gym_id = ?", gymID); result.Error != nil {
+		context.AbortWithError(http.StatusNotFound, result.Error)
+		return
+	}
+	dto.Map(&response, users)
+	context.JSON(http.StatusOK, &response)
+}
+
+func UserDelete(context *gin.Context) {
+	id := context.Param("id")
+	var user models.User
+	if result := initializers.DB.First(&user, id); result.Error != nil {
+		context.AbortWithError(http.StatusNotFound, result.Error)
+		return
+	}
+	initializers.DB.Delete(&user)
+	context.JSON(http.StatusCreated, gin.H{
+		"message": user.Email + " deleted",
+	})
 }
 
 func UserLogin(context *gin.Context) {
@@ -46,8 +114,6 @@ func UserLogin(context *gin.Context) {
 		context.Abort()
 		return
 	}
-
-	// check if email exists and password is correct
 	record := initializers.DB.Where("email = ?", request.Email).First(&user)
 	if record.Error != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": record.Error.Error()})
@@ -73,4 +139,15 @@ func UserLogin(context *gin.Context) {
 	context.SetCookie("Authorization", tokenString, 3600*34, "", "", false, true)
 
 	context.JSON(http.StatusOK, gin.H{})
+}
+
+func Me(context *gin.Context) {
+	claim, exist := context.Get("jwt")
+
+	if !exist {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Some problem on access control middleware"})
+		context.Abort()
+		return
+	}
+	context.JSON(http.StatusOK, claim)
 }

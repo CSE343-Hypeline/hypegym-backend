@@ -31,7 +31,7 @@ func GenerateJWT(email string, role enums.Role) (tokenString string, err error) 
 	return
 }
 
-func ValidateToken(signedToken string) (err error, role enums.Role) {
+func ValidateToken(signedToken string) (err error, jwtClaim *JWTClaim) {
 	token, err := jwt.ParseWithClaims(
 		signedToken,
 		&JWTClaim{},
@@ -55,6 +55,6 @@ func ValidateToken(signedToken string) (err error, role enums.Role) {
 		return
 	}
 
-	role = claims.Role
+	jwtClaim = claims
 	return
 }

@@ -44,7 +44,9 @@ func MigrateDB() {
 
 	var gym models.Gym
 	gym.Name = "HYPEGYM"
-	gym.Address = "GTU"
+	gym.Address = "CSE343"
+	gym.Email = "hypegym@gmail.com"
+	gym.PhoneNumber = "11111111111"
 
 	DB.Create(&gym)
 	DB.Create(&user)
