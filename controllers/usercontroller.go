@@ -138,7 +138,7 @@ func UserLogin(context *gin.Context) {
 	context.SetSameSite(http.SameSiteLaxMode)
 	context.SetCookie("Authorization", tokenString, 3600*34, "", "", false, true)
 
-	context.JSON(http.StatusOK, gin.H{})
+	context.JSON(http.StatusOK, gin.H{"token": tokenString})
 }
 
 func Me(context *gin.Context) {
