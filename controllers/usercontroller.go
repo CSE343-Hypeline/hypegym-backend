@@ -101,7 +101,7 @@ func UserDelete(context *gin.Context) {
 		return
 	}
 	initializers.DB.Delete(&user)
-	context.JSON(http.StatusCreated, gin.H{
+	context.JSON(http.StatusOK, gin.H{
 		"message": user.Email + " deleted",
 	})
 }
@@ -128,7 +128,7 @@ func UserLogin(context *gin.Context) {
 		return
 	}
 
-	tokenString, err := auth.GenerateJWT(user.Email, user.Role)
+	tokenString, err := auth.GenerateJWT(user.Email, user.Role, user.GymID)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		context.Abort()

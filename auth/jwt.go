@@ -14,14 +14,16 @@ var jwtKey = []byte(os.Getenv("JWT_SECRET"))
 type JWTClaim struct {
 	Email string     `json:"email"`
 	Role  enums.Role `json:"roles"`
+	GymID uint       `json:"gym_id"`
 	jwt.StandardClaims
 }
 
-func GenerateJWT(email string, role enums.Role) (tokenString string, err error) {
+func GenerateJWT(email string, role enums.Role, gym_id uint) (tokenString string, err error) {
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claims := &JWTClaim{
 		Email: email,
 		Role:  role,
+		GymID: gym_id,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},
