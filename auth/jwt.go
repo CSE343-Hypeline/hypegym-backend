@@ -13,7 +13,7 @@ var jwtKey = []byte(os.Getenv("JWT_SECRET"))
 
 type JWTClaim struct {
 	Email string     `json:"email"`
-	Role  enums.Role `json:"roles"`
+	Role  enums.Role `json:"role"`
 	GymID uint       `json:"gym_id"`
 	jwt.StandardClaims
 }
