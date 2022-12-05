@@ -37,8 +37,8 @@ func MigrateDB() {
 	DB.AutoMigrate(&models.User{}, &models.Gym{})
 
 	var user models.User
-	user.Email = "superadmin@superadmin"
-	user.HashPassword("superadmin")
+	user.Email = "hypegym@hypegym"
+	user.HashPassword("hypegym")
 	user.Role = "SUPERADMIN"
 	user.GymID = 1
 
