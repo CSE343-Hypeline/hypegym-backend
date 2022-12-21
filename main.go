@@ -30,6 +30,7 @@ func initRouter() *gin.Engine {
 	api := router.Group("/api").Use(middlewares.Auth())
 	{
 		api.GET("/me", controllers.Me)
+		api.POST("/logout", controllers.Logout)
 
 		api.GET("/users/:gymID", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}), controllers.UserGetAll)
 		api.GET("/users/pts/:gymID", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}), controllers.UserGetAllByRole)

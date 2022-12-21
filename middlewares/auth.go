@@ -14,6 +14,13 @@ func Auth() gin.HandlerFunc {
 			context.Abort()
 			return
 		}
+
+		if tokenString == "un4uthorized" {
+			context.JSON(401, gin.H{"error": "unauthorized"})
+			context.Abort()
+			return
+		}
+
 		validateErr, claims := auth.ValidateToken(tokenString)
 		if validateErr != nil {
 			context.JSON(401, gin.H{"error": validateErr.Error()})

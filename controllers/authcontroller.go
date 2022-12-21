@@ -44,6 +44,13 @@ func Login(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"token": tokenString})
 }
 
+func Logout(context *gin.Context) {
+	tokenString := "un4uthorized"
+	context.SetSameSite(http.SameSiteLaxMode)
+	context.SetCookie("Authorization", tokenString, 3600*34, "", "", false, true)
+	context.JSON(http.StatusOK, gin.H{"message": "Susscessfuly logged out"})
+}
+
 func Me(context *gin.Context) {
 	claim, exist := context.Get("jwt")
 
