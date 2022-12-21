@@ -9,10 +9,25 @@ import (
 
 type User struct {
 	gorm.Model
-	Email    string     `json:"email" gorm:"unique"`
-	Password string     `json:"password"`
-	Role     enums.Role `json:"role" gorm:"type:enum('SUPERADMIN', 'ADMIN', 'PT', 'MEMBER')"`
-	GymID    uint       `json:"gym_id"`
+	Name        string     `json:"name"`
+	Email       string     `json:"email" gorm:"unique"`
+	Password    string     `json:"password"`
+	PhoneNumber string     `json:"phone_number" gorm:"unique"`
+	Address     string     `json:"address"`
+	GymID       uint       `json:"gym_id"`
+	Role        enums.Role `json:"role" gorm:"type:enum('SUPERADMIN', 'ADMIN', 'PT', 'MEMBER')"`
+}
+
+type UserLoginDto struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type UserResponseDto struct {
+	ID    uint   `json:"ID"`
+	Email string `json:"email"`
+	Role  string `json:"role"`
+	GymID uint   `json:"gym_id"`
 }
 
 func (user *User) HashPassword(password string) error {

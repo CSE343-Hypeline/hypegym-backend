@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"hypegym-backend/auth"
 	"hypegym-backend/initializers"
 	"hypegym-backend/models"
 	"hypegym-backend/models/enums"
@@ -11,18 +10,6 @@ import (
 	"github.com/dranikpg/dto-mapper"
 	"github.com/gin-gonic/gin"
 )
-
-type UserLoginDto struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-type UserResponseDto struct {
-	ID    uint   `json:"ID"`
-	Email string `json:"email"`
-	Role  string `json:"role"`
-	GymID uint   `json:"gym_id"`
-}
 
 func UserCreate(context *gin.Context) {
 	var user models.User
@@ -39,6 +26,8 @@ func UserCreate(context *gin.Context) {
 	}
 
 	record := initializers.DB.Create(&user)
+	createSubEntry(&user)
+
 	if record.Error != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": record.Error.Error()})
 		context.Abort()
@@ -50,9 +39,17 @@ func UserCreate(context *gin.Context) {
 	})
 }
 
+func createSubEntry(user *models.User) {
+	if user.Role == enums.MEMBER {
+		MemberCreate(user)
+	} else if user.Role == enums.PT {
+		TrainerCreate(user)
+	}
+}
+
 func UserGet(context *gin.Context) {
 	id := context.Param("id")
-	response := UserResponseDto{}
+	response := models.UserResponseDto{}
 	var user models.User
 	if result := initializers.DB.First(&user, id); result.Error != nil {
 		context.AbortWithError(http.StatusNotFound, result.Error)
@@ -64,7 +61,7 @@ func UserGet(context *gin.Context) {
 
 func UserGetAll(context *gin.Context) {
 	gymID := context.Param("gymID")
-	var response []UserResponseDto = nil
+	var response []models.UserResponseDto = nil
 	var users []models.User
 	if result := initializers.DB.Find(&users, "gym_id = ?", gymID); result.Error != nil {
 		context.AbortWithError(http.StatusNotFound, result.Error)
@@ -77,7 +74,7 @@ func UserGetAll(context *gin.Context) {
 func UserGetAllByRole(context *gin.Context) {
 	gymID := context.Param("gymID")
 	path := context.Request.URL.String()
-	var response []UserResponseDto = nil
+	var response []models.UserResponseDto = nil
 	var users []models.User
 	var role enums.Role
 	if strings.Contains(path, "members") {
@@ -104,50 +101,4 @@ func UserDelete(context *gin.Context) {
 	context.JSON(http.StatusCreated, gin.H{
 		"message": user.Email + " deleted",
 	})
-}
-
-func UserLogin(context *gin.Context) {
-	var request UserLoginDto
-	var user models.User
-	if err := context.ShouldBindJSON(&request); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		context.Abort()
-		return
-	}
-	record := initializers.DB.Where("email = ?", request.Email).First(&user)
-	if record.Error != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": record.Error.Error()})
-		context.Abort()
-		return
-	}
-
-	credentialError := user.CheckPassword(request.Password)
-	if credentialError != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
-		context.Abort()
-		return
-	}
-
-	tokenString, err := auth.GenerateJWT(user.Email, user.Role)
-	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		context.Abort()
-		return
-	}
-
-	context.SetSameSite(http.SameSiteLaxMode)
-	context.SetCookie("Authorization", tokenString, 3600*34, "", "", false, true)
-
-	context.JSON(http.StatusOK, gin.H{"token": tokenString})
-}
-
-func Me(context *gin.Context) {
-	claim, exist := context.Get("jwt")
-
-	if !exist {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": "Some problem on access control middleware"})
-		context.Abort()
-		return
-	}
-	context.JSON(http.StatusOK, claim)
 }

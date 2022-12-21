@@ -34,13 +34,34 @@ func ConnectToDB() {
 }
 
 func MigrateDB() {
-	DB.AutoMigrate(&models.User{}, &models.Gym{})
+	DB.AutoMigrate(&models.User{}, &models.Gym{}, &models.Member{}, &models.Trainer{})
 
-	var user models.User
-	user.Email = "superadmin@superadmin"
-	user.HashPassword("superadmin")
-	user.Role = "SUPERADMIN"
-	user.GymID = 1
+	var superadmin models.User
+	superadmin.Name = "super"
+	superadmin.Email = "superadmin@superadmin"
+	superadmin.HashPassword("superadmin")
+	superadmin.PhoneNumber = "11111111111"
+	superadmin.Address = "Gebze No: 1"
+	superadmin.GymID = 1
+	superadmin.Role = "SUPERADMIN"
+
+	/* 	var pt models.User
+	   	pt.Name = "pt"
+	   	pt.Email = "pt@pt"
+	   	pt.HashPassword("superadmin")
+	   	pt.PhoneNumber = "1111111asd1111"
+	   	pt.Address = "Gebze No: 1"
+	   	pt.GymID = 1
+	   	pt.Role = "SUPERADMIN"
+
+	   	var member models.User
+	   	member.Name = "member"
+	   	member.Email = "member@member"
+	   	member.HashPassword("superadmin")
+	   	member.PhoneNumber = "11111111111"
+	   	member.Address = "Gebze No: 1"
+	   	member.GymID = 1
+	   	member.Role = "SUPERADMIN" */
 
 	var gym models.Gym
 	gym.Name = "HYPEGYM"
@@ -49,7 +70,8 @@ func MigrateDB() {
 	gym.PhoneNumber = "11111111111"
 
 	DB.Create(&gym)
-	DB.Create(&user)
-
+	DB.Create(&superadmin)
+	/* 	DB.Create(&pt)
+	   	DB.Create(&member) */
 	log.Println("Database Migration Completed!")
 }

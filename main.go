@@ -25,7 +25,7 @@ func initRouter() *gin.Engine {
 	router := gin.Default()
 	router.Use(cors.Default())
 	router.GET("/", controllers.Home)
-	router.POST("/login", controllers.UserLogin)
+	router.POST("/login", controllers.Login)
 
 	api := router.Group("/api").Use(middlewares.Auth())
 	{
@@ -37,6 +37,10 @@ func initRouter() *gin.Engine {
 		api.POST("/user", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}), controllers.UserCreate)
 		api.GET("/user/:id", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}), controllers.UserGet)
 		api.DELETE("/user/:id", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}), controllers.UserDelete)
+
+		api.POST("/pt/:id/assign-member", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}), controllers.AssignMembers)
+		api.DELETE("/pt/:id/dismiss-member", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}), controllers.DismissMember)
+		api.GET("/pt/:id/members", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}), controllers.GetMembers)
 
 		api.POST("/gym", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}), controllers.GymCreate)
 	}
