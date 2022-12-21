@@ -98,7 +98,7 @@ func UserDelete(context *gin.Context) {
 		return
 	}
 	initializers.DB.Delete(&user)
-	context.JSON(http.StatusCreated, gin.H{
+	context.JSON(http.StatusOK, gin.H{
 		"message": user.Email + " deleted",
 	})
 }
