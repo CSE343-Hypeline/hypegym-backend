@@ -24,10 +24,13 @@ type UserLoginDto struct {
 }
 
 type UserResponseDto struct {
-	ID    uint   `json:"ID"`
-	Email string `json:"email"`
-	Role  string `json:"role"`
-	GymID uint   `json:"gym_id"`
+	ID          uint   `json:"ID"`
+	Name        string `json:"name"`
+	Email       string `json:"email"`
+	PhoneNumber string `json:"phone_number" gorm:"unique"`
+	Address     string `json:"address"`
+	GymID       uint   `json:"gym_id"`
+	Role        string `json:"role"`
 }
 
 func (user *User) HashPassword(password string) error {
