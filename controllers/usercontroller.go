@@ -1,11 +1,14 @@
 package controllers
 
 import (
+	"fmt"
 	"hypegym-backend/initializers"
 	"hypegym-backend/models"
 	"hypegym-backend/models/enums"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/dranikpg/dto-mapper"
 	"github.com/gin-gonic/gin"
@@ -101,4 +104,66 @@ func UserDelete(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{
 		"message": user.Email + " deleted",
 	})
+}
+
+func CheckIn(c *gin.Context) {
+	userID, err := strconv.Atoi(c.Param("userID"))
+	if err != nil {
+		c.JSON(400, gin.H{"message": "invalid user ID"})
+		return
+	}
+
+	gymID, err := strconv.Atoi(c.Param("gymID"))
+	if err != nil {
+		c.JSON(400, gin.H{"message": err.Error()})
+		return
+	}
+
+	var gender string
+	initializers.DB.Table("users").Select("gender").Where("id = ?", userID).Scan(&gender)
+	tableName := fmt.Sprintf("gym_activities_%d", gymID)
+	var latestActivity models.UserActivity
+	err = initializers.DB.Table(tableName).Where("user_id = ?", userID).Order("check_in_at desc").First(&latestActivity).Error
+	if err == nil && latestActivity.CheckOutAt == nil {
+		c.JSON(400, gin.H{"message": "user must check out before checking in again"})
+		return
+	}
+
+	checkInTime := time.Now()
+	activity := models.UserActivity{
+		UserID:    userID,
+		Gender:    enums.Gender(gender),
+		CheckInAt: checkInTime,
+	}
+	initializers.DB.Table(tableName).Create(&activity)
+	key := fmt.Sprintf("online-users-%d", gymID)
+	initializers.RDB.SAdd(initializers.CTX, key, userID)
+
+	c.JSON(200, gin.H{"message": "user checked in"})
+}
+
+func CheckOut(c *gin.Context) {
+	userID, err := strconv.Atoi(c.Param("userID"))
+	if err != nil {
+		c.JSON(400, gin.H{"message": "invalid user ID"})
+		return
+	}
+	gymID, err := strconv.Atoi(c.Param("gymID"))
+	if err != nil {
+		c.JSON(400, gin.H{"message": "invalid gym ID"})
+		return
+	}
+
+	checkOutTime := time.Now()
+	tableName := fmt.Sprintf("gym_activities_%d", gymID)
+	result := initializers.DB.Table(tableName).Where("user_id = ? AND check_out_at IS NULL", userID).UpdateColumn("check_out_at", checkOutTime)
+	if result.Error != nil {
+		c.JSON(500, gin.H{"message": result.Error.Error()})
+		return
+	}
+
+	key := fmt.Sprintf("online-users-%d", gymID)
+	initializers.RDB.SRem(initializers.CTX, key, userID)
+
+	c.JSON(200, gin.H{"message": "user checked out"})
 }

@@ -1,18 +1,22 @@
 package initializers
 
 import (
+	"context"
 	"hypegym-backend/models"
 	"log"
 	"os"
 	"time"
 
+	"github.com/go-redis/redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
-var dbError error
+var DBError error
+var RDB *redis.Client
+var CTX context.Context = context.Background()
 
 func ConnectToDB() {
 	newLogger := logger.New(
@@ -25,12 +29,21 @@ func ConnectToDB() {
 	)
 
 	connectionString := os.Getenv("DB_URL")
-	DB, dbError = gorm.Open(mysql.Open(connectionString), &gorm.Config{Logger: newLogger})
-	if dbError != nil {
-		log.Fatal(dbError)
+	DB, DBError = gorm.Open(mysql.Open(connectionString), &gorm.Config{Logger: newLogger})
+	if DBError != nil {
+		log.Fatal(DBError)
 		panic("Cannot connect to DB")
 	}
 	log.Println("Connected to Database!")
+}
+
+func ConnectToRedis() {
+	connectionString := os.Getenv("REDIS_ADD")
+	RDB = redis.NewClient(&redis.Options{
+		Addr:     connectionString,
+		Password: "",
+		DB:       0,
+	})
 }
 
 func MigrateDB() {
@@ -45,24 +58,6 @@ func MigrateDB() {
 	superadmin.GymID = 1
 	superadmin.Role = "SUPERADMIN"
 
-	/* 	var pt models.User
-	   	pt.Name = "pt"
-	   	pt.Email = "pt@pt"
-	   	pt.HashPassword("superadmin")
-	   	pt.PhoneNumber = "1111111asd1111"
-	   	pt.Address = "Gebze No: 1"
-	   	pt.GymID = 1
-	   	pt.Role = "SUPERADMIN"
-
-	   	var member models.User
-	   	member.Name = "member"
-	   	member.Email = "member@member"
-	   	member.HashPassword("superadmin")
-	   	member.PhoneNumber = "11111111111"
-	   	member.Address = "Gebze No: 1"
-	   	member.GymID = 1
-	   	member.Role = "SUPERADMIN" */
-
 	var gym models.Gym
 	gym.Name = "HYPEGYM"
 	gym.Address = "CSE343"
@@ -71,7 +66,5 @@ func MigrateDB() {
 
 	DB.Create(&gym)
 	DB.Create(&superadmin)
-	/* 	DB.Create(&pt)
-	   	DB.Create(&member) */
 	log.Println("Database Migration Completed!")
 }

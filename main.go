@@ -14,6 +14,7 @@ func init() {
 	initializers.LoadEnvVariables()
 	initializers.ConnectToDB()
 	initializers.MigrateDB()
+	initializers.ConnectToRedis()
 }
 
 func main() {
@@ -27,23 +28,49 @@ func initRouter() *gin.Engine {
 	router.GET("/", controllers.Home)
 	router.POST("/login", controllers.Login)
 
-	api := router.Group("/api").Use(middlewares.Auth())
+	api := router.Group("/api")
+	api.Use(middlewares.Auth())
 	{
-		api.GET("/me", controllers.Me)
-		api.POST("/logout", controllers.Logout)
-
-		api.GET("/users/:gymID", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}), controllers.UserGetAll)
-		api.GET("/users/pts/:gymID", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}), controllers.UserGetAllByRole)
-		api.GET("/users/members/:gymID", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}), controllers.UserGetAllByRole)
-		api.POST("/user", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}), controllers.UserCreate)
-		api.GET("/user/:id", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}), controllers.UserGet)
-		api.DELETE("/user/:id", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}), controllers.UserDelete)
-
-		api.POST("/pt/:id/assign-member", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}), controllers.AssignMembers)
-		api.DELETE("/pt/:id/dismiss-member", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}), controllers.DismissMember)
-		api.GET("/pt/:id/members", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}), controllers.GetMembers)
-
-		api.POST("/gym", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}), controllers.GymCreate)
+		initSharedAPI(api)
+		initAdminAPI(api)
+		initMemberAPI(api)
 	}
 	return router
+}
+
+func initSharedAPI(api *gin.RouterGroup) {
+	sharedAPI := api.Group("/")
+	{
+		sharedAPI.GET("/me", controllers.Me)
+		sharedAPI.POST("/logout", controllers.Logout)
+	}
+}
+
+func initAdminAPI(api *gin.RouterGroup) {
+	adminAPI := api.Group("/", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}))
+	{
+		adminAPI.GET("/users/:gymID", controllers.UserGetAll)
+		adminAPI.GET("/users/pts/:gymID", controllers.UserGetAllByRole)
+		adminAPI.GET("/users/members/:gymID", controllers.UserGetAllByRole)
+		adminAPI.POST("/user", controllers.UserCreate)
+		adminAPI.GET("/user/:id", controllers.UserGet)
+		adminAPI.DELETE("/user/:id", controllers.UserDelete)
+
+		adminAPI.POST("/pt/:id/assign-member", controllers.AssignMembers)
+		adminAPI.DELETE("/pt/:id/dismiss-member", controllers.DismissMember)
+		adminAPI.GET("/pt/:id/members", controllers.GetMembers)
+		adminAPI.GET("/gym/:gymID/attendance/month", controllers.GetAttendance)
+		adminAPI.GET("/gym/:gymID/attendance/day", controllers.GetAttendance)
+		adminAPI.GET("/gym/:gymID/online", controllers.GetAllOnlines)
+
+		adminAPI.POST("/gym", controllers.GymCreate)
+	}
+}
+
+func initMemberAPI(api *gin.RouterGroup) {
+	memberAPI := api.Group("/", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "MEMBER"}))
+	{
+		memberAPI.POST("/member/:userID/checkIn/:gymID", controllers.CheckIn)
+		memberAPI.POST("/member/:userID/checkOut/:gymID", controllers.CheckOut)
+	}
 }
