@@ -57,6 +57,7 @@ func MigrateDB() {
 	superadmin.Address = "Gebze No: 1"
 	superadmin.GymID = 1
 	superadmin.Role = "SUPERADMIN"
+	superadmin.Gender = "OTHER"
 
 	var gym models.Gym
 	gym.Name = "HYPEGYM"
