@@ -29,7 +29,6 @@ func UserCreate(context *gin.Context) {
 	}
 
 	record := initializers.DB.Create(&user)
-	createSubEntry(&user)
 
 	if record.Error != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": record.Error.Error()})
@@ -37,6 +36,7 @@ func UserCreate(context *gin.Context) {
 		return
 	}
 
+	createSubEntry(&user)
 	context.JSON(http.StatusCreated, gin.H{
 		"message": user.Role + " created",
 	})
