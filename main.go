@@ -55,6 +55,7 @@ func initAdminAPI(api *gin.RouterGroup) {
 		adminAPI.POST("/user", controllers.UserCreate)
 		adminAPI.GET("/user/:id", controllers.UserGet)
 		adminAPI.DELETE("/user/:id", controllers.UserDelete)
+		adminAPI.PUT("/user/:id", controllers.UserUpdate)
 
 		adminAPI.POST("/pt/:id/assign-member", controllers.AssignMembers)
 		adminAPI.DELETE("/pt/:id/dismiss-member", controllers.DismissMember)

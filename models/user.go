@@ -44,6 +44,14 @@ type UserResponseDto struct {
 	Role        string       `json:"role"`
 }
 
+type UserUpdateeDto struct {
+	Name        string       `json:"name"`
+	Email       string       `json:"email"`
+	PhoneNumber string       `json:"phone_number" gorm:"unique"`
+	Gender      enums.Gender `json:"gender" gorm:"type:enum('MALE', 'FEMALE')"`
+	Address     string       `json:"address"`
+}
+
 func (user *User) HashPassword(password string) error {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 10)
 	if err != nil {

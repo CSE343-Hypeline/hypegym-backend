@@ -93,6 +93,33 @@ func UserGetAllByRole(context *gin.Context) {
 	context.JSON(http.StatusOK, &response)
 }
 
+func UserUpdate(context *gin.Context) {
+	id := context.Param("id")
+	var user models.User
+	var dto models.UserUpdateeDto
+	if result := initializers.DB.First(&user, id); result.Error != nil {
+		context.AbortWithError(http.StatusNotFound, result.Error)
+		return
+	}
+
+	if err := context.ShouldBindJSON(&dto); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		context.Abort()
+		return
+	}
+
+	user.Name = dto.Name
+	user.Email = dto.Email
+	user.PhoneNumber = dto.PhoneNumber
+	user.Gender = dto.Gender
+	user.Address = dto.Address
+
+	initializers.DB.Save(&user)
+	context.JSON(http.StatusOK, gin.H{
+		"message": "Updated successfuly",
+	})
+}
+
 func UserDelete(context *gin.Context) {
 	id := context.Param("id")
 	var user models.User
