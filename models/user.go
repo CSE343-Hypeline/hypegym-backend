@@ -38,7 +38,7 @@ type UserResponseDto struct {
 	Name        string       `json:"name"`
 	Email       string       `json:"email"`
 	PhoneNumber string       `json:"phone_number" gorm:"unique"`
-	Gender      enums.Gender `json:"gender" gorm:"type:enum('MALE', 'FEMALE')"`
+	Gender      enums.Gender `json:"gender" gorm:"type:enum('MALE', 'FEMALE', 'OTHER')"`
 	Address     string       `json:"address"`
 	GymID       uint         `json:"gym_id"`
 	Role        string       `json:"role"`
@@ -48,7 +48,7 @@ type UserUpdateeDto struct {
 	Name        string       `json:"name"`
 	Email       string       `json:"email"`
 	PhoneNumber string       `json:"phone_number" gorm:"unique"`
-	Gender      enums.Gender `json:"gender" gorm:"type:enum('MALE', 'FEMALE')"`
+	Gender      enums.Gender `json:"gender" gorm:"type:enum('MALE', 'FEMALE', 'OTHER')"`
 	Address     string       `json:"address"`
 }
 
