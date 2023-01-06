@@ -47,7 +47,11 @@ func ConnectToRedis() {
 }
 
 func MigrateDB() {
-	DB.AutoMigrate(&models.User{}, &models.Gym{}, &models.Member{}, &models.Trainer{})
+	DB.AutoMigrate(&models.User{}, &models.Gym{}, &models.Member{}, &models.Trainer{}, &models.Program{})
+
+	if !DB.Migrator().HasTable("exercises") {
+		DB.AutoMigrate(&models.Exercise{})
+	}
 
 	var superadmin models.User
 	superadmin.Name = "super"
@@ -67,5 +71,8 @@ func MigrateDB() {
 
 	DB.Create(&gym)
 	DB.Create(&superadmin)
+
+	LoadExercises()
+
 	log.Println("Database Migration Completed!")
 }

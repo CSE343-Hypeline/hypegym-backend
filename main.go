@@ -34,6 +34,7 @@ func initRouter() *gin.Engine {
 		initSharedAPI(api)
 		initAdminAPI(api)
 		initMemberAPI(api)
+		initTrainerAPI(api)
 	}
 	return router
 }
@@ -43,6 +44,7 @@ func initSharedAPI(api *gin.RouterGroup) {
 	{
 		sharedAPI.GET("/me", controllers.Me)
 		sharedAPI.POST("/logout", controllers.Logout)
+
 	}
 }
 
@@ -65,6 +67,18 @@ func initAdminAPI(api *gin.RouterGroup) {
 		adminAPI.GET("/gym/:gymID/online", controllers.GetAllOnlines)
 
 		adminAPI.POST("/gym", controllers.GymCreate)
+
+		adminAPI.GET("/exercises", controllers.GetExercises)
+
+	}
+}
+
+func initTrainerAPI(api *gin.RouterGroup) {
+	trainerAPI := api.Group("/", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "PT"}))
+	{
+		trainerAPI.POST("/member/assign-program/:id", controllers.AssignProgram)
+		trainerAPI.POST("/member/assign-programs/:id", controllers.AssignPrograms)
+		trainerAPI.DELETE("/member/dismiss-program/:id", controllers.DismissProgram)
 	}
 }
 
@@ -73,5 +87,7 @@ func initMemberAPI(api *gin.RouterGroup) {
 	{
 		memberAPI.POST("/member/:userID/checkIn/:gymID", controllers.CheckIn)
 		memberAPI.POST("/member/:userID/checkOut/:gymID", controllers.CheckOut)
+
+		memberAPI.GET("/member/programs/:id", controllers.GetPrograms)
 	}
 }
