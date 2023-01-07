@@ -18,6 +18,7 @@ func init() {
 }
 
 func main() {
+
 	router := initRouter()
 	router.Run()
 }
@@ -27,6 +28,7 @@ func initRouter() *gin.Engine {
 	router.Use(cors.Default())
 	router.GET("/", controllers.Home)
 	router.POST("/login", controllers.Login)
+	router.POST("/contact", controllers.Contact)
 
 	api := router.Group("/api")
 	api.Use(middlewares.Auth())
