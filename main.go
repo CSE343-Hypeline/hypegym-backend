@@ -71,6 +71,7 @@ func initAdminAPI(api *gin.RouterGroup) {
 		adminAPI.POST("/gym", controllers.GymCreate)
 
 		adminAPI.GET("/exercises", controllers.GetExercises)
+		adminAPI.GET("/exercise/:id", controllers.GetExercise)
 
 	}
 }
