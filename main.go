@@ -84,6 +84,7 @@ func initTrainerAPI(api *gin.RouterGroup) {
 		trainerAPI.POST("/member/assign-program/:id", controllers.AssignProgram)
 		trainerAPI.POST("/member/assign-programs/:id", controllers.AssignPrograms)
 		trainerAPI.DELETE("/member/dismiss-program/:id", controllers.DismissProgram)
+		trainerAPI.PUT("/user/:id", controllers.UserUpdate)
 	}
 }
 
@@ -94,5 +95,6 @@ func initMemberAPI(api *gin.RouterGroup) {
 		memberAPI.POST("/member/:userID/checkOut/:gymID", controllers.CheckOut)
 
 		memberAPI.GET("/member/programs/:id", controllers.GetPrograms)
+		memberAPI.PUT("/user/:id", controllers.UserUpdate)
 	}
 }
