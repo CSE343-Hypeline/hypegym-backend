@@ -63,7 +63,6 @@ func initAdminAPI(api *gin.RouterGroup) {
 
 		adminAPI.POST("/pt/:id/assign-member", controllers.AssignMembers)
 		adminAPI.DELETE("/pt/:id/dismiss-member", controllers.DismissMember)
-		adminAPI.GET("/pt/:id/members", controllers.GetMembers)
 		adminAPI.GET("/gym/:gymID/attendance/month", controllers.GetAttendance)
 		adminAPI.GET("/gym/:gymID/attendance/day", controllers.GetAttendance)
 		adminAPI.GET("/gym/:gymID/online", controllers.GetAllOnlines)
@@ -79,6 +78,7 @@ func initAdminAPI(api *gin.RouterGroup) {
 func initTrainerAPI(api *gin.RouterGroup) {
 	trainerAPI := api.Group("/", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "PT"}))
 	{
+		trainerAPI.GET("/pt/:id/members", controllers.GetMembers)
 		trainerAPI.POST("/member/assign-program/:id", controllers.AssignProgram)
 		trainerAPI.POST("/member/assign-programs/:id", controllers.AssignPrograms)
 		trainerAPI.DELETE("/member/dismiss-program/:id", controllers.DismissProgram)
