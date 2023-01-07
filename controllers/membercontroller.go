@@ -21,6 +21,30 @@ func MemberCreate(user *models.UserRequestDto) {
 	}
 }
 
+func GetTrainerOf(context *gin.Context) {
+	id := context.Param("id")
+	var member models.Member
+	var trainer models.Trainer
+	var trainerDto models.TrainerDto
+
+	record := initializers.DB.Where("user_id = ?", id).Find(&member)
+	if record.Error != nil {
+		context.JSON(http.StatusNotFound, gin.H{"error": record.Error.Error()})
+		context.Abort()
+		return
+	}
+
+	record2 := initializers.DB.Where("user_id = ?", member.TrainerID).Find(&trainer)
+	if record2.Error != nil {
+		context.JSON(http.StatusNotFound, gin.H{"error": record2.Error.Error()})
+		context.Abort()
+		return
+	}
+
+	dto.Map(&trainerDto, trainer)
+	context.JSON(http.StatusOK, &trainerDto)
+}
+
 func AssignProgram(context *gin.Context) {
 	id := context.Param("id")
 	var member models.Member
