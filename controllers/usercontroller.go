@@ -23,13 +23,14 @@ func UserCreate(context *gin.Context) {
 		return
 	}
 
+	dto.Map(&user, userRequestDto)
+
 	if err := user.HashPassword(userRequestDto.Password); err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		context.Abort()
 		return
 	}
 
-	dto.Map(&user, userRequestDto)
 	record := initializers.DB.Create(&user)
 
 	if record.Error != nil {
