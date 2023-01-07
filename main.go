@@ -46,7 +46,7 @@ func initSharedAPI(api *gin.RouterGroup) {
 	{
 		sharedAPI.GET("/me", controllers.Me)
 		sharedAPI.POST("/logout", controllers.Logout)
-
+		sharedAPI.PUT("/user/:id", controllers.UserUpdate)
 	}
 }
 
@@ -59,7 +59,6 @@ func initAdminAPI(api *gin.RouterGroup) {
 		adminAPI.POST("/user", controllers.UserCreate)
 		adminAPI.GET("/user/:id", controllers.UserGet)
 		adminAPI.DELETE("/user/:id", controllers.UserDelete)
-		adminAPI.PUT("/user/:id", controllers.UserUpdate)
 
 		adminAPI.POST("/pt/:id/assign-member", controllers.AssignMembers)
 		adminAPI.DELETE("/pt/:id/dismiss-member", controllers.DismissMember)
@@ -84,7 +83,7 @@ func initTrainerAPI(api *gin.RouterGroup) {
 		trainerAPI.POST("/member/assign-program/:id", controllers.AssignProgram)
 		trainerAPI.POST("/member/assign-programs/:id", controllers.AssignPrograms)
 		trainerAPI.DELETE("/member/dismiss-program/:id", controllers.DismissProgram)
-		trainerAPI.PUT("/user/:id", controllers.UserUpdate)
+
 	}
 }
 
@@ -95,6 +94,6 @@ func initMemberAPI(api *gin.RouterGroup) {
 		memberAPI.POST("/member/:userID/checkOut/:gymID", controllers.CheckOut)
 
 		memberAPI.GET("/member/programs/:id", controllers.GetPrograms)
-		memberAPI.PUT("/user/:id", controllers.UserUpdate)
+
 	}
 }
