@@ -21,7 +21,7 @@ func TrainerCreate(user *models.UserRequestDto) {
 
 func AssignMembers(context *gin.Context) {
 	id := context.Param("id")
-	var dto models.AssignMemberDto
+	var dto models.TrainerDto
 	var member models.Member
 	var trainer models.Trainer
 
@@ -52,7 +52,7 @@ func AssignMembers(context *gin.Context) {
 
 func DismissMember(context *gin.Context) {
 	id := context.Param("id")
-	var dto models.AssignMemberDto
+	var dto models.TrainerDto
 	var member models.Member
 	var trainer models.Trainer
 

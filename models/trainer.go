@@ -5,6 +5,6 @@ type Trainer struct {
 	Members []Member `gorm:"foreignKey:TrainerID"`
 }
 
-type AssignMemberDto struct {
+type TrainerDto struct {
 	UserID int `json:"user_id"`
 }
