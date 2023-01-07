@@ -33,12 +33,25 @@ type UserLoginDto struct {
 	Password string `json:"password"`
 }
 
+type UserRequestDto struct {
+	gorm.Model
+	Name        string       `json:"name"`
+	Email       string       `json:"email"`
+	Password    string       `json:"password"`
+	PhoneNumber string       `json:"phone_number"`
+	Gender      enums.Gender `json:"gender"`
+	Address     string       `json:"address"`
+	GymID       uint         `json:"gym_id"`
+	Role        enums.Role   `json:"role"`
+	TrainerID   int          `json:"trainer_id"`
+}
+
 type UserResponseDto struct {
 	ID          uint         `json:"ID"`
 	Name        string       `json:"name"`
 	Email       string       `json:"email"`
-	PhoneNumber string       `json:"phone_number" gorm:"unique"`
-	Gender      enums.Gender `json:"gender" gorm:"type:enum('MALE', 'FEMALE', 'OTHER')"`
+	PhoneNumber string       `json:"phone_number"`
+	Gender      enums.Gender `json:"gender"`
 	Address     string       `json:"address"`
 	GymID       uint         `json:"gym_id"`
 	Role        string       `json:"role"`
@@ -47,8 +60,8 @@ type UserResponseDto struct {
 type UserUpdateeDto struct {
 	Name        string       `json:"name"`
 	Email       string       `json:"email"`
-	PhoneNumber string       `json:"phone_number" gorm:"unique"`
-	Gender      enums.Gender `json:"gender" gorm:"type:enum('MALE', 'FEMALE', 'OTHER')"`
+	PhoneNumber string       `json:"phone_number" `
+	Gender      enums.Gender `json:"gender"`
 	Address     string       `json:"address"`
 }
 

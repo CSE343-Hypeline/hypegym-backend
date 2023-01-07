@@ -15,19 +15,21 @@ import (
 )
 
 func UserCreate(context *gin.Context) {
-	var user models.User
-	if err := context.ShouldBindJSON(&user); err != nil {
+	var userRequestDto models.UserRequestDto
+	user := models.User{}
+	if err := context.ShouldBindJSON(&userRequestDto); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		context.Abort()
 		return
 	}
 
-	if err := user.HashPassword(user.Password); err != nil {
+	if err := user.HashPassword(userRequestDto.Password); err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		context.Abort()
 		return
 	}
 
+	dto.Map(&user, userRequestDto)
 	record := initializers.DB.Create(&user)
 
 	if record.Error != nil {
@@ -36,13 +38,13 @@ func UserCreate(context *gin.Context) {
 		return
 	}
 
-	createSubEntry(&user)
+	createSubEntry(&userRequestDto)
 	context.JSON(http.StatusCreated, gin.H{
 		"message": user.Role + " created",
 	})
 }
 
-func createSubEntry(user *models.User) {
+func createSubEntry(user *models.UserRequestDto) {
 	if user.Role == enums.MEMBER {
 		MemberCreate(user)
 	} else if user.Role == enums.PT {
