@@ -1,9 +1,9 @@
 package models
 
 type Program struct {
-	ID         int  `gorm:"primaryKey" json:"id"`
-	UserID     uint `json:"user_id" `
-	ExerciseID uint `gorm:"unique" json:"exercise_id"`
+	ID         uint `gorm:"primaryKey" json:"id"`
+	UserID     uint `json:"user_id" gorm:"uniqueIndex:idx_first_second"`
+	ExerciseID uint `json:"exercise_id" gorm:"uniqueIndex:idx_first_second"`
 	Set        uint `json:"set"`
 	Repetition uint `json:"repetition"`
 }
