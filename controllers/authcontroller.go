@@ -6,6 +6,7 @@ import (
 	"hypegym-backend/models"
 	"net/http"
 
+	"github.com/dranikpg/dto-mapper"
 	"github.com/gin-gonic/gin"
 )
 
@@ -52,6 +53,7 @@ func Logout(context *gin.Context) {
 }
 
 func Me(context *gin.Context) {
+
 	claim, exist := context.Get("jwt")
 
 	if !exist {
@@ -59,5 +61,13 @@ func Me(context *gin.Context) {
 		context.Abort()
 		return
 	}
-	context.JSON(http.StatusOK, claim)
+
+	response := models.UserResponseDto{}
+	var user models.User
+	if result := initializers.DB.First(&user, claim.(*auth.JWTClaim).ID); result.Error != nil {
+		context.AbortWithError(http.StatusNotFound, result.Error)
+		return
+	}
+	dto.Map(&response, user)
+	context.JSON(http.StatusOK, &response)
 }
