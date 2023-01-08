@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func TrainerCreate(user *models.UserRequestDto) {
+func TrainerCreate(user *models.User) {
 	trainer := models.Trainer{}
 	trainer.UserID = int(user.ID)
 	record := initializers.DB.Create(&trainer)

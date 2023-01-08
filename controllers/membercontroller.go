@@ -10,11 +10,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func MemberCreate(user *models.UserRequestDto) {
+func MemberCreate(user *models.User) {
 	member := models.Member{}
 	member.UserID = int(user.ID)
-	member.TrainerID = int(user.TrainerID)
-	record := initializers.DB.Create(&member)
+	record := initializers.DB.Omit("trainer_id").Create(&member)
 
 	if record.Error != nil {
 		log.Fatal(record.Error)
