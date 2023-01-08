@@ -38,7 +38,7 @@ func UserCreate(context *gin.Context) {
 
 	createSubEntry(&user)
 	context.JSON(http.StatusCreated, gin.H{
-		"message": user.Role + " created",
+		"ID": user.ID,
 	})
 }
 
