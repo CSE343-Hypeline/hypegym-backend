@@ -51,7 +51,7 @@ func initSharedAPI(api *gin.RouterGroup) {
 }
 
 func initAdminAPI(api *gin.RouterGroup) {
-	adminAPI := api.Group("/", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN"}))
+	adminAPI := api.Group("/", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN", "PT", "MEMBER"}))
 	{
 		adminAPI.GET("/users/:gymID", controllers.UserGetAll)
 		adminAPI.GET("/users/pts/:gymID", controllers.UserGetAllByRole)
@@ -77,7 +77,7 @@ func initAdminAPI(api *gin.RouterGroup) {
 }
 
 func initTrainerAPI(api *gin.RouterGroup) {
-	trainerAPI := api.Group("/", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "PT"}))
+	trainerAPI := api.Group("/", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN", "PT", "MEMBER"}))
 	{
 		trainerAPI.GET("/pt/:id/members", controllers.GetMembers)
 		trainerAPI.POST("/member/assign-program/:id", controllers.AssignProgram)
@@ -88,7 +88,7 @@ func initTrainerAPI(api *gin.RouterGroup) {
 }
 
 func initMemberAPI(api *gin.RouterGroup) {
-	memberAPI := api.Group("/", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "MEMBER"}))
+	memberAPI := api.Group("/", middlewares.AccessControl([]enums.Role{"SUPERADMIN", "ADMIN", "PT", "MEMBER"}))
 	{
 		memberAPI.POST("/member/:userID/checkIn/:gymID", controllers.CheckIn)
 		memberAPI.POST("/member/:userID/checkOut/:gymID", controllers.CheckOut)
