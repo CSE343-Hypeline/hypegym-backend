@@ -154,5 +154,12 @@ func GetPrograms(context *gin.Context) {
 	}
 	initializers.DB.Model(&member).Association("Programs").Find(&programs)
 	dto.Map(&response, programs)
+	exercises := make([]models.Exercise, len(response))
+
+	for i := 0; i < len(response); i++ {
+		initializers.DB.First(&exercises[i], response[i].ExerciseID)
+		response[i].Exercise = exercises[i]
+	}
+
 	context.JSON(http.StatusOK, gin.H{"programs": response})
 }

@@ -9,10 +9,11 @@ type Program struct {
 }
 
 type ProgramResponseDto struct {
-	ID         int  `json:"id"`
-	ExerciseID uint `json:"exercise_id"`
-	Set        uint `json:"set"`
-	Repetition uint `json:"repetition"`
+	ID         int      `json:"id"`
+	ExerciseID uint     `json:"exercise_id"`
+	Exercise   Exercise `json:"exercise"`
+	Set        uint     `json:"set"`
+	Repetition uint     `json:"repetition"`
 }
 
 type ProgramRequestDto struct {
